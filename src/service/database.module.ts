@@ -17,9 +17,16 @@ import { User } from '../users/domain/entities/users.entity';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         autoLoadModels: true,
-        synchronize: false,
+        synchronize: true,
         logging: false,
         models: [User],
+        ssl: true,
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false, // только для разработки, не рекомендуется для продакшена
+          },
+        },
       }),
     }),
   ],
