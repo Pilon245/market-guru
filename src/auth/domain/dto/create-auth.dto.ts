@@ -4,13 +4,8 @@ import { ApiProperty } from '@nestjs/swagger';
 export class LoginInputModel {
   @ApiProperty()
   @Length(0)
-  loginOrEmail: string;
+  login: string;
   @ApiProperty()
   @Length(0)
   password: string;
-}
-export class RegistrationUsersUseCaseDto {
-  login: string;
-  password: string;
-  email: string;
 }

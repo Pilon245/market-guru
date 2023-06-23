@@ -11,24 +11,22 @@ export class JwtGenerate {
 
   constructor(private configService: ConfigService) {}
 
-  async generateTokens(userId: string, deviceId: string) {
+  async generateTokens(userId: string) {
     const accessToken = jwt.sign({ id: userId }, this.accessTokenJwtSecret, {
       expiresIn: '10m',
     });
-    const refreshToken = jwt.sign(
-      { id: userId, deviceId: deviceId },
-      this.refreshTokenJwtSecret,
-      { expiresIn: '60m' },
-    );
+    const refreshToken = jwt.sign({ id: userId }, this.refreshTokenJwtSecret, {
+      expiresIn: '60m',
+    });
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
     };
   }
 
-  async verifyTokens(token: string) {
+  async verifyRefreshTokens(token: string) {
     try {
-      const result: any = jwt.verify(token, this.accessTokenJwtSecret);
+      const result: any = jwt.verify(token, this.refreshTokenJwtSecret);
       return result;
     } catch (error) {
       return null;

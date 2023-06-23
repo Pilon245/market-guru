@@ -1,14 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../infrastructure/users.repository';
+import { randomUUID } from 'crypto';
 import {
   CreateUserUseCaseDto,
   UsersFactory,
-} from '../../domain/dto/usersFactory';
-import { randomUUID } from 'crypto';
-import { add } from 'date-fns';
-import { UsersSqlRepository } from '../../infrastructure/users.sql.repository';
-import { UsersOrmRepository } from '../../infrastructure/users.orm.repository';
-import { _generatePasswordForDb } from 'src/helper/auth.function';
+} from '../../domain/dto/users.factory';
+import { UsersRepository } from '../../infrastucture/users.repository';
+import { _generatePasswordForDb } from '../../../helper/auth.function';
 
 export class CreateUserCommand {
   constructor(public createUseCase: CreateUserUseCaseDto) {}
@@ -16,35 +13,19 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
-  constructor(private usersRepository: UsersOrmRepository) {}
+  constructor(private usersRepository: UsersRepository) {}
 
   async execute(command: CreateUserCommand) {
     const passwordHash = await _generatePasswordForDb(
       command.createUseCase.password,
     );
     const newUser = new UsersFactory(
-      String(+new Date()),
-      {
-        login: command.createUseCase.login,
-        email: command.createUseCase.email,
-        passwordHash: passwordHash,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        confirmationCode: randomUUID(),
-        expirationDate: add(new Date(), { hours: 1, minutes: 1 }),
-        isConfirmed: false,
-      },
-      {
-        confirmationCode: randomUUID(),
-        expirationDate: add(new Date(), { hours: 1, minutes: 1 }),
-        isConfirmed: false,
-      },
-      {
-        isBanned: false,
-        banDate: null,
-        banReason: null,
-      },
+      randomUUID(),
+      command.createUseCase.name,
+      command.createUseCase.email,
+      command.createUseCase.phone,
+      passwordHash,
+      new Date().toISOString(),
     );
     await this.usersRepository.createUsers(newUser);
     return newUser;

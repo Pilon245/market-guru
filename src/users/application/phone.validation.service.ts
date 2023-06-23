@@ -6,9 +6,9 @@ import {
 } from 'class-validator';
 import { UsersRepository } from '../infrastucture/users.repository';
 
-@ValidatorConstraint({ name: 'EmailExists', async: true })
+@ValidatorConstraint({ name: 'PhoneExists', async: true })
 @Injectable()
-export class EmailExistsRule implements ValidatorConstraintInterface {
+export class PhoneExistsRule implements ValidatorConstraintInterface {
   constructor(private usersRepository: UsersRepository) {}
 
   async validate(value: string) {
@@ -18,6 +18,6 @@ export class EmailExistsRule implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `Email doesn't exist`;
+    return `Phone doesn't exist`;
   }
 }

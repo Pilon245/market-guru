@@ -4,9 +4,8 @@ class QueryValidationResult {
   sortBy: string;
   sortDirection: SortDirection;
   searchNameTerm: string;
-  searchLoginTerm: string;
+  searchPhoneTerm: string;
   searchEmailTerm: string;
-  banStatus: banStatusEnum;
 }
 
 const defaultPageSize = 10;
@@ -15,17 +14,6 @@ const defaultPageNumber = 1;
 export enum SortDirection {
   asc = 'asc',
   desc = 'desc',
-}
-
-export enum SortOrmDirection {
-  asc = 'ASC',
-  desc = 'DESC',
-}
-
-export enum banStatusEnum {
-  all = 'NOT NULL',
-  banned = 'true',
-  notBanned = 'false',
 }
 
 export const pagination = (query: any): QueryValidationResult => {
@@ -41,14 +29,6 @@ export const pagination = (query: any): QueryValidationResult => {
     pageSize = defaultPageSize;
   pageSize = parseInt(pageSize, 10);
 
-  let banStatus = query.banStatus;
-  if (banStatus == 'notBanned') {
-    banStatus = banStatusEnum.notBanned;
-  } else if (banStatus == 'banned') {
-    banStatus = banStatusEnum.banned;
-  } else {
-    banStatus = banStatusEnum.all;
-  }
   const sortBy = typeof query.sortBy === 'string' ? query.sortBy : 'createdAt';
   const sortDirection =
     typeof query.sortDirection === 'string' ? query.sortDirection : 'desc';
@@ -56,9 +36,9 @@ export const pagination = (query: any): QueryValidationResult => {
     typeof query.searchNameTerm === 'string'
       ? query.searchNameTerm?.toString()
       : '';
-  const searchLoginTerm =
-    typeof query.searchLoginTerm === 'string'
-      ? query.searchLoginTerm?.toString()
+  const searchPhoneTerm =
+    typeof query.searchPhoneTerm === 'string'
+      ? query.searchPhoneTerm?.toString()
       : '';
   const searchEmailTerm =
     typeof query.searchEmailTerm === 'string'
@@ -70,8 +50,7 @@ export const pagination = (query: any): QueryValidationResult => {
     sortBy,
     sortDirection,
     searchNameTerm,
-    searchLoginTerm,
+    searchPhoneTerm,
     searchEmailTerm,
-    banStatus,
   };
 };

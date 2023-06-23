@@ -9,64 +9,129 @@ import {
   Post,
   Put,
   Query,
-  Scope,
-  UseGuards,
 } from '@nestjs/common';
-// import { pagination } from '../../validation/query.validation';
-
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
+import { UsersQueryRepository } from '../infrastucture/users.query.repository';
+import {
+  CreateUserInputModel,
+  UpdateUserInputModel,
+} from '../domain/dto/input.dto';
+import { CreateUserCommand } from '../application/use-cases/create.user.use.cases';
+import { UpdateUserCommand } from '../application/use-cases/update.user.use.cases';
+import { DeleteUserCommand } from '../application/use-cases/delete.user.use.cases';
+import { pagination, SortDirection } from '../../helper/query.validation';
+import {
+  CreateUserError,
+  GetUsers,
+  IResponseUser,
+  UpdateUserError,
+} from '../domain/dto/swagger';
 
-// @UseGuards(BasicAdminGuard)
-@ApiTags('/users')
+@ApiTags('Users')
 @Controller({
   path: '/users',
-  scope: Scope.DEFAULT,
 })
 export class UsersController {
   constructor(
-    protected usersQueryRepository: UsersOrmQueryRepository,
+    protected usersQueryRepository: UsersQueryRepository,
     private commandBus: CommandBus,
   ) {}
 
+  @ApiResponse({ status: 200, type: IResponseUser })
+  @ApiOperation({ summary: 'Get All Users' })
+  @ApiQuery({
+    name: 'pageNumber',
+    type: String,
+    required: false,
+    description: 'Параметр номер страницы',
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    type: String,
+    required: false,
+    description: 'Количество элементов на странице',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    type: String,
+    required: false,
+    description: 'Поле по которому сортировать',
+  })
+  @ApiQuery({
+    name: 'sortDirection',
+    type: String,
+    required: false,
+    description: 'По возрастанию/убыванию',
+    enum: SortDirection,
+  })
+  @ApiQuery({
+    name: 'searchNameTerm',
+    type: String,
+    required: false,
+    description: 'Поиск по имени',
+  })
+  @ApiQuery({
+    name: 'searchPhoneTerm',
+    type: String,
+    required: false,
+    description: 'Поиск по номеру телефона',
+  })
+  @ApiQuery({
+    name: 'searchEmailTerm',
+    type: String,
+    required: false,
+    description: 'Поиск по почте',
+  })
   @Get()
   async getUsers(@Query() query) {
     return this.usersQueryRepository.findUsers(pagination(query));
   }
 
+  @ApiResponse({ status: 201, type: GetUsers })
+  @ApiResponse({
+    status: 400,
+    description: 'In Body incorrect data',
+    type: CreateUserError,
+  })
+  @ApiOperation({ summary: 'Create User' })
   @Post()
+  @HttpCode(201)
   async createUsers(@Body() inputModel: CreateUserInputModel) {
     const created = await this.commandBus.execute(
       new CreateUserCommand(inputModel),
     );
-    if (!created) {
-      throw new HttpException('invalid blog', 404);
-    }
-    return this.usersQueryRepository.findUsersById(created.id);
+
+    return this.usersQueryRepository.findUserById(created.id);
   }
 
-  @Put(':id/ban')
+  @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 404, type: UpdateUserError })
+  @ApiOperation({ summary: 'Update User' })
+  @Put(':id')
   @HttpCode(204)
   async updateUsers(
     @Param('id') id: string,
-    @Body() inputModel: BanUserInputModel,
+    @Body() inputModel: UpdateUserInputModel,
   ) {
-    const banUser: BanAdminUserUseCaseDto = {
-      id: id,
-      isBanned: inputModel.isBanned,
-      banReason: inputModel.banReason,
-    };
-    return this.commandBus.execute(new BanAdminUserCommand(banUser));
+    const user = await this.usersQueryRepository.findUserById(id);
+    if (!user) {
+      throw new HttpException('invalid data', 404);
+    }
+    const command = { id: id, ...inputModel };
+    return this.commandBus.execute(new UpdateUserCommand(command));
   }
 
+  @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiResponse({ status: 404, type: UpdateUserError })
+  @ApiOperation({ summary: 'Delete User' })
   @Delete(':id')
   @HttpCode(204)
   async deleteUsers(@Param('id') id: string) {
-    //todo добавить isDeleted
-    const result = await this.commandBus.execute(new DeleteUserCommand(id));
-    if (!result) {
-      throw new HttpException('Incorect Not Found', 404);
+    const user = await this.usersQueryRepository.findUserById(id);
+    if (!user) {
+      throw new HttpException('invalid data', 404);
     }
-    return result;
+    return this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GetUsers {
+export class GetMyAccount {
   @ApiProperty()
   id: string;
   @ApiProperty()
@@ -13,31 +13,21 @@ export class GetUsers {
   createdAt: string;
 }
 
-export class IResponseUser {
-  @ApiProperty()
-  pagesCount: number;
-  @ApiProperty()
-  page: number;
-  @ApiProperty()
-  pageSize: number;
-  @ApiProperty()
-  totalCount: number;
-  @ApiProperty()
-  items: GetUsers;
-}
-
-export class CreateUserError {
-  @ApiProperty()
-  statusCode: number;
-  @ApiProperty({ type: Array })
-  message: Array<string>;
-  @ApiProperty()
-  error: string;
-}
-
-export class UpdateUserError {
+export class ErrorCode4__ {
   @ApiProperty()
   statusCode: number;
   @ApiProperty()
   message: string;
+}
+
+export class loginType {
+  @ApiProperty()
+  accessToken: string;
+}
+
+export class loginBodyType {
+  @ApiProperty({ default: '+79090201199' })
+  login: string;
+  @ApiProperty({ default: '12345678' })
+  password: string;
 }
