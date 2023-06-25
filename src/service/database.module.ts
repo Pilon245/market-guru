@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../users/domain/entities/users.entity';
+import * as pg from 'pg';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { User } from '../users/domain/entities/users.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
+        dialectModule: pg,
         dialect: 'postgres',
         host: configService.get('DB_HOST'),
         port: configService.get('DB_PORT'),
