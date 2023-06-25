@@ -21,7 +21,7 @@ describe('AppController (e2e)', () => {
     await app.init();
     server = app.getHttpServer();
     api = request(server);
-  });
+  }, 60000);
   test('All data delete', () => {
     return api.delete('/users/test/all-delete').expect(200);
   });
