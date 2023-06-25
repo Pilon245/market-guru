@@ -8,10 +8,12 @@ import {
 import { PhoneExistsRule } from '../../application/phone.validation.service';
 import { EmailExistsRule } from '../../application/email.validation.service';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { NameExistsRule } from '../../application/name.validation.service';
 
 export class CreateUserInputModel {
   @IsString()
   @ApiProperty()
+  @Validate(NameExistsRule)
   name: string;
 
   @ApiProperty()

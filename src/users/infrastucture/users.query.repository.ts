@@ -85,4 +85,8 @@ export class UsersQueryRepository {
       })),
     };
   }
+
+  async deleteAll() {
+    return this.usersRepository.truncate();
+  }
 }

@@ -134,4 +134,12 @@ export class UsersController {
     }
     return this.commandBus.execute(new DeleteUserCommand(id));
   }
+
+  @ApiResponse({ status: 204, description: 'No Content' })
+  @ApiOperation({ summary: 'Delete All{testing}' })
+  @Delete('/test/all-delete')
+  async deleteAllUsers() {
+    await this.usersQueryRepository.deleteAll();
+    return 'Delete All';
+  }
 }

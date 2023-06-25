@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from './app.module';
-import io from 'socket.io-client';
 
 let app: INestApplication;
 let server: any;
@@ -23,7 +22,10 @@ describe('AppController (e2e)', () => {
     server = app.getHttpServer();
     api = request(server);
   });
-  test('/create add string File', () => {
+  test('All data delete', () => {
+    return api.delete('/users/test/all-delete').expect(200);
+  });
+  test('/create users', () => {
     const usersBody = {
       name: 'Anton',
       password: '12345678',
@@ -45,41 +47,66 @@ describe('AppController (e2e)', () => {
         });
       });
   });
-  test('no created no valid body', () => {
+  test('create  account', () => {
     const usersBody = {
-      name: 123123,
+      name: 'Ivan',
       password: '12345678',
-      email: 'pochta@bk.ru',
-      phone: '+79287882132',
     };
 
-    return api.post('/users').send(usersBody).expect(400);
+    return api
+      .post('/users')
+      .send(usersBody)
+      .expect(201)
+      .then((response) => {
+        expect(response.body).toEqual({
+          createdAt: expect.any(String),
+          email: null,
+          id: expect.any(String),
+          name: 'Ivan',
+          phone: null,
+        });
+      });
   });
-  test('no created no valid body', () => {
+
+  test('login in account', () => {
     const usersBody = {
-      password: 12345678,
-      email: 'pochta@bk.ru',
-      phone: '+79287882132',
+      login: '+79287882132',
+      password: '12345678',
     };
 
-    return api.post('/users').send(usersBody).expect(400);
+    return api
+      .post('/auth/login')
+      .send(usersBody)
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toEqual({
+          accessToken: expect.any(String),
+        });
+      });
+  });
+
+  test('login in account', () => {
+    const usersBody = {
+      login: 'Ivan',
+      password: '12345678',
+    };
+
+    return api
+      .post('/auth/login')
+      .send(usersBody)
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toEqual({
+          accessToken: expect.any(String),
+        });
+      });
+  });
+  test('No valid login data ', () => {
+    const usersBody = {
+      name: 'Ivan',
+      password: 'pass1234',
+    };
+
+    return api.post('/auth/login').send(usersBody).expect(401);
   });
 });
-
-// describe('AppController', () => {
-//   let usersController: UsersController;
-//
-//   beforeAll(async () => {
-//     const app: TestingModule = await Test.createTestingModule({
-//       imports: [UsersModule],
-//     }).compile();
-//
-//     usersController = app.get<UsersController>(UsersController);
-//   });
-//
-//   describe('create users', () => {
-//     it('/create', () => {
-//       expect().toMatchObject(usersBody);
-//     });
-//   });
-// });

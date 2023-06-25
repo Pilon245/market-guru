@@ -12,6 +12,9 @@ export class EmailExistsRule implements ValidatorConstraintInterface {
   constructor(private usersRepository: UsersRepository) {}
 
   async validate(value: string) {
+    if (typeof value !== 'string') {
+      return false;
+    }
     const result = await this.usersRepository.findUserLogin(value);
     if (result) return false;
     return true;
